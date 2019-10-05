@@ -154,10 +154,10 @@ if (!isset($_GET["act"])) {
 
 	   echo '<div class="col-md-3 column">';
 	   echo '<ul class="list-group">';
-	   echo '<li class="list-group-item">' . gall_info($gid,"name") .'</li>';
+	   echo '<li class="list-group-item">' .  gall_info($gid,"name") .'</li>';
 
 	   echo '<li class="list-group-item">';
-	   echo '<span class="badge badge-info">Test</span>';
+	   echo '<a href="http://www.baidu.com"><span class="badge badge-info">Test</span></a>';
 	   echo '</li>';
 
 	   $prev_dis="";$next_dis="";
