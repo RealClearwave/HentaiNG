@@ -114,7 +114,7 @@ if (!isset($_GET["act"])) {
 		for ($i=1;$i<=10;$i++){
 			$gid = rand(0,count(dump_content())-1);
 			$file = scandir($appdir . '/' . gall_info($gid,"folder"));
-			echo '<div class="media border p-3"><img src="' . gall_info($gid,"cover") . '" alt="Cover" class="mr-3 mt-3 rounded-circle" style="width:60px;">';
+			echo '<div class="media border p-3"><img src="' . gall_info($gid,"folder") . '/' . gall_info($gid,"page")[0] . '" alt="Cover" class="mr-3 mt-3 rounded-circle" style="width:60px;">';
 			echo '<div class="media-body"><h4>' . gall_info($gid,"name") . '</h4>';
 			echo '<a href="?' . http_build_query(array("act"=>"show","gid"=>$gid,"page"=>1)) . '"><strong>Get Started!</strong></a>';
 			echo '</div></div>';
@@ -128,11 +128,16 @@ if (!isset($_GET["act"])) {
 		for ($i = 0; $i < count($file); $i+= 1){
 			if ($file[$i][0] != '.'){
 				$scpv = scan_path('picture/' . $file[$i]);
-				echo $scpv;
-				$gid = $gid + 1;$cvr = 0;
+				$gid = $gid + 1;$page = array();
 				$fl = scandir($appdir . '/' . $scpv);
-				while (!(isset($pic_ext[pathinfo($fl[$cvr],PATHINFO_EXTENSION)]) && $pic_ext[pathinfo($fl[$cvr],PATHINFO_EXTENSION)] == true)) $cvr = $cvr + 1;
-				array_push($arr,json_encode(array("gid"=>$gid,"name"=>$file[$i],"folder"=>$scpv,"count"=>strval(count(scandir($scpv)) - 2),"cover"=>$scpv . '/' . $fl[$cvr] ,"compressed"=>"")));
+				
+				for ($j=0;$j<count($fl);$j++){
+					if (isset($pic_ext[pathinfo($fl[$j],PATHINFO_EXTENSION)]) && $pic_ext[pathinfo($fl[$j],PATHINFO_EXTENSION)] == true){
+						array_push($page,$fl[$j]);
+					}
+				}
+
+				array_push($arr,json_encode(array("gid"=>$gid,"name"=>$file[$i],"folder"=>$scpv,"page"=>$page,"count"=>strval(count(scandir($scpv)) - 2),"compressed"=>"")));
 			}
 		}
 		$cjs = fopen("content.json","w+");
@@ -143,25 +148,21 @@ if (!isset($_GET["act"])) {
 		echo '<div class="container"><div class="row clearfix"><div class="col-md-9 column">';
 
 		$gid = $_GET["gid"];$page = $_GET["page"];
-		$file = scandir($appdir . '/' . gall_info($gid,"folder"));
 		$acted = false;
-		for ($i = 0;$i < count($file);$i+=1){
-			if (isset($pic_ext[pathinfo($file[$i],PATHINFO_EXTENSION)]) && $pic_ext[pathinfo($file[$i],PATHINFO_EXTENSION)] == true) {
-				$page -= 1;
-				if ($page == 0){
-					echo ' <img class="img-fluid" src="' . gall_info($gid,"folder") . '/' . $file[$i] .'" alt="pic">';
-					break;
-				}
-			}
-		}
+		echo ' <img class="img-fluid" src="' . gall_info($gid,"folder") . '/' . gall_info($gid,"page")[$page-1] .'" alt="pic">';
 	   echo '</div>';	
 
 	   echo '<div class="col-md-3 column">';
 	   echo '<ul class="list-group">';
 	   echo '<li class="list-group-item">' . gall_info($gid,"name") .'</li>';
+
+	   echo '<li class="list-group-item">';
+	   echo '<span class="badge badge-info">Test</span>';
+	   echo '</li>';
+
 	   $prev_dis="";$next_dis="";
 	   if ($_GET["page"] < 2) $prev_dis="disabled";
-	   else if ($_GET["page"] >= count($file)-2) $next_dis="disabled";
+	   if ($_GET["page"] >= gall_info($gid,"count")) $next_dis="disabled";
 	   echo '<div class="btn-group">';
 	   echo '<a href="?' . http_build_query(array("act"=>"show","gid"=>$gid,"page"=>$_GET["page"]-1)) . '" class="btn btn-success ' . $prev_dis . '" role="button">prev page</a>';
 	   echo '<a href="?' . http_build_query(array("act"=>"show","gid"=>$gid,"page"=>$_GET["page"]+1)) . '" class="btn btn-primary ' . $next_dis . '" role="button">next page</a>';
