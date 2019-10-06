@@ -140,16 +140,68 @@ if (!isset($_GET["act"])) {
 	echo '</div></div></div></div></div></div>';
 } else {
 	if ($_GET["act"] == "explore") {
-		echo '<div class="container mt-3">';
-		for ($i=1; $i<=10; $i++) {
+//		echo '<div class="container-fluid"><div id="demo" class="carousel slide" data-ride="carousel">';
+//		echo '<ul class="carousel-indicators">';
+//		echo '<li data-target="#demo" data-slide-to="0" class="active"></li>';
+//		echo '<li data-target="#demo" data-slide-to="1"></li>';
+//		echo '<li data-target="#demo" data-slide-to="2"></li>';
+//		echo '<li data-target="#demo" data-slide-to="3"></li>';
+//		echo '<li data-target="#demo" data-slide-to="4"></li>';
+//		echo '</ul>';
+//		echo '<div class="carousel-inner">';
+//		
+//		$gid = rand(0,count(dump_content())-1);
+//		echo '<div class="carousel-item active">';
+//		echo '<img src="' . gall_info($gid,"folder") . '/' . gall_info($gid,"page")[0] .'">';
+//		echo '<div class="carousel-caption"><h3>' . gall_info($gid,"name") . '</h3>';
+//		echo '<a href="?' . http_build_query(array("act"=>"show","gid"=>$gid,"page"=>1)) . '"><strong>Get Started!</strong></a></div></div>';
+//		
+//		for ($i = 2;$i <= 5;$i += 1){
+//			$gid = rand(0,count(dump_content())-1);
+//			echo '<div class="carousel-item">';
+//			echo '<img src="' . gall_info($gid,"folder") . '/' . gall_info($gid,"page")[0] .'">';
+//			echo '<div class="carousel-caption"><h3>' . gall_info($gid,"name") . '</h3>';
+//			echo '<a href="?' . http_build_query(array("act"=>"show","gid"=>$gid,"page"=>1)) . '"><strong>Get Started!</strong></a></div></div>';
+//		}
+//		echo '</div>';
+//
+//		echo '<a class="carousel-control-prev" href="#demo" data-slide="prev">';
+//		echo '<span class="carousel-control-prev-icon"></span></a>';
+//		echo '<a class="carousel-control-next" href="#demo" data-slide="next">';
+//		echo '<span class="carousel-control-next-icon"></span></a>';
+//		echo '</div></div>';
+
+		echo '<div class="container-fluid"><div class="row">';
+		echo '<div class="col">';
+		for ($i=1; $i<=4; $i++) {
 			$gid = rand(0,count(dump_content())-1);
-			$file = scandir($appdir . '/' . gall_info($gid,"folder"));
 			echo '<div class="media border p-3"><img src="' . gall_info($gid,"folder") . '/' . gall_info($gid,"page")[0] . '" alt="Cover" class="mr-3 mt-3 rounded-circle" style="width:60px;">';
 			echo '<div class="media-body"><h4>' . gall_info($gid,"name") . '</h4>';
 			echo '<a href="?' . http_build_query(array("act"=>"show","gid"=>$gid,"page"=>1)) . '"><strong>Get Started!</strong></a>';
 			echo '</div></div>';
 		}
 		echo '</div>';
+
+		echo '<div class="col">';
+		for ($i=1; $i<=4; $i++) {
+			$gid = rand(0,count(dump_content())-1);
+			echo '<div class="media border p-3"><img src="' . gall_info($gid,"folder") . '/' . gall_info($gid,"page")[0] . '" alt="Cover" class="mr-3 mt-3 rounded-circle" style="width:60px;">';
+			echo '<div class="media-body"><h4>' . gall_info($gid,"name") . '</h4>';
+			echo '<a href="?' . http_build_query(array("act"=>"show","gid"=>$gid,"page"=>1)) . '"><strong>Get Started!</strong></a>';
+			echo '</div></div>';
+		}
+		echo '</div>';
+
+		echo '<div class="col">';
+		for ($i=1; $i<=4; $i++) {
+			$gid = rand(0,count(dump_content())-1);
+			echo '<div class="media border p-3"><img src="' . gall_info($gid,"folder") . '/' . gall_info($gid,"page")[0] . '" alt="Cover" class="mr-3 mt-3 rounded-circle" style="width:60px;">';
+			echo '<div class="media-body"><h4>' . gall_info($gid,"name") . '</h4>';
+			echo '<a href="?' . http_build_query(array("act"=>"show","gid"=>$gid,"page"=>1)) . '"><strong>Get Started!</strong></a>';
+			echo '</div></div>';
+		}
+		echo '</div>';
+		echo '</div></div>';
 	} else if ($_GET["act"] == "build_content"  && is_local($dom)) {
 		echo "building content.json      ";
 		$file = scandir($appdir . "/usr/gallery");
@@ -219,7 +271,7 @@ if (!isset($_GET["act"])) {
 			echo '<p>Removable Tags(Click to remove):</p>';
 			$ctg = gall_tag($gid);
 			for ($i=0; $i<count($ctg); $i+=1) {
-				echo '<a href="?action=tagadmin&exe=rm&gid=' . $gid . '&tag=' . $ctg[$i] . '"><span class="badge badge-pill badge-info">' . $ctg[$i] . '</span></a> ';
+				echo '<a href="?act=tagadmin&exe=rm&gid=' . $gid . '&tag=' . $ctg[$i] . '"><span class="badge badge-pill badge-info">' . $ctg[$i] . '</span></a> ';
 			}
 			echo '</div><br />';
 
@@ -244,12 +296,12 @@ if (!isset($_GET["act"])) {
 			$gid = $_GET["gid"];
 			$tag = $_GET["tag"];
 			add_tag($gid,$tag);
-			echo "Done.";
+			header('Location: ?act=tagadmin&gid=' . $gid);
 		} else if ($_GET["exe"] == "rm") {
 			$gid = $_GET["gid"];
 			$tag = $_GET["tag"];
 			rmv_tag($gid,$tag);
-			echo "Done.";
+			header('Location: ?act=tagadmin&gid=' . $gid);
 		}else{
 			echo '<h1>404 Not Found</h1>';
 		}
