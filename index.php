@@ -3,6 +3,16 @@ $dom = $_SERVER['SERVER_NAME'];
 $appdir = dirname(__FILE__);
 $pic_ext = array("jpg"=>true,"png"=>true,"tiff"=>true,"gif"=>true);
 
+$fo = fopen("content.json","r");
+$dcc = fgets($fo);
+fclose($fo);
+$buf_content = json_decode($dcc);
+
+$fo = fopen("tag.json","r");
+$dcc = fgets($fo);
+fclose($fo);
+$buf_tag = json_decode($dcc);
+
 function is_local($url) {
 	if(stristr($url,'localhost') || stristr($url,'127.') || stristr($url,'192.') ) {
 		return true;
@@ -21,10 +31,8 @@ function scan_path($pfd) {
 }
 
 function dump_content() {
-	$fo = fopen("content.json","r");
-	$dcc = fgets($fo);
-	fclose($fo);
-	return json_decode($dcc);
+	global $buf_content;
+	return $buf_content;
 }
 
 function gall_info($gid,$attr) {
@@ -44,10 +52,8 @@ function gall_filt($fil,$val,$strict) {
 }
 
 function dump_tag() {
-	$fo = fopen("tag.json","r");
-	$dcc = fgets($fo);
-	fclose($fo);
-	return json_decode($dcc);
+	global $buf_tag;
+	return $buf_tag;
 }
 
 function set_tag($ctg) {
@@ -67,6 +73,9 @@ function add_tag($gid,$tag) {
 }
 
 function rmv_tag($gid,$tag) {
+	$ctg = dump_tag();
+	$ctg[$gid] = array_diff($ctg[$gid],[$tag]);
+	set_tag($ctg);
 }
 
 function sch_tag($tag) {
@@ -182,9 +191,14 @@ if (!isset($_GET["act"])) {
 
 		echo '<li class="list-group-item">';
 		$ctg = gall_tag($gid);
-		for ($i=0; $i<count($ctg); $i+=1) {
-			echo '<a href="?tag=' . $ctg[$i] . '"><span class="badge badge-info">' . $ctg[$i] . '</span></a>';
+		if (count($ctg) == 0) {
+			echo 'No Tag Available.';
+		} else {
+			for ($i=0; $i<count($ctg); $i+=1) {
+				echo '<a href="?tag=' . $ctg[$i] . '"><span class="badge badge-pill badge-info">' . $ctg[$i] . '</span></a> ';
+			}
 		}
+		if (is_local($dom)) echo '<br /><a href="?act=tagadmin&gid=' . $gid . '" class="btn btn-info" role="button">Manage Tags</a>';
 		echo '</li>';
 		echo '<a href="usr/compressed/' . gall_info($gid,"compressed") . '"><li class="list-group-item">Download ZIP</li></a>';
 		$prev_dis="";
@@ -199,7 +213,25 @@ if (!isset($_GET["act"])) {
 		echo '</ul>';
 		echo '</div></div></div>';
 	} else if ($_GET["act"] == "tagadmin" && is_local($dom)) {
-		if ($_GET["exe"] == "init") {
+		if (!isset($_GET["exe"])){
+			$gid = $_GET["gid"];
+			echo '<div class="container">';
+			echo '<p>Removable Tags(Click to remove):</p>';
+			$ctg = gall_tag($gid);
+			for ($i=0; $i<count($ctg); $i+=1) {
+				echo '<a href="?action=tagadmin&exe=rm&gid=' . $gid . '&tag=' . $ctg[$i] . '"><span class="badge badge-pill badge-info">' . $ctg[$i] . '</span></a> ';
+			}
+			echo '</div><br />';
+
+			echo '<div class="container">';
+			echo '<form class="form-inline" action="" method="get"><label for="email">Add Tag:</label>';
+			echo '<input name="act" type="hidden" value="tagadmin">';
+			echo '<input name="exe" type="hidden" value="add">';
+			echo '<input name="gid" type="hidden" value="' . $gid . '">';
+			echo '<input name="tag" type="text" class="form-control" placeholder="Enter your tag here">';
+			echo '<button type="submit" class="btn btn-success">Submit</button></form>';
+			echo '</div>';
+		}else if ($_GET["exe"] == "init") {
 			$tbl = array();
 			for ($i=0; $i<count(dump_content()); $i+=1) {
 				array_push($tbl,array());
@@ -213,6 +245,13 @@ if (!isset($_GET["act"])) {
 			$tag = $_GET["tag"];
 			add_tag($gid,$tag);
 			echo "Done.";
+		} else if ($_GET["exe"] == "rm") {
+			$gid = $_GET["gid"];
+			$tag = $_GET["tag"];
+			rmv_tag($gid,$tag);
+			echo "Done.";
+		}else{
+			echo '<h1>404 Not Found</h1>';
 		}
 	}
 }
